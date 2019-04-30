@@ -2,8 +2,9 @@
   <h2>Lönekonto</h2>
   <p>Namn: <span class="customerName">{{myAccount.customerName}}</span></p>
   <p>Saldo: <span class="balance">{{myAccount.balance}}</span></p>
-  <input [(ngModel)]="inputValue" class="amount">
-
+  <input [(ngModel)]="inputValue" class="amount"><br/>
+  <button class="depositButton" (click)="depositInService()">Sätt in belopp</button><br/>
+  <button class="withdrawButton" (click)="withdrawInService()">Ta ut belopp</button><br/>
 </div>
 
 

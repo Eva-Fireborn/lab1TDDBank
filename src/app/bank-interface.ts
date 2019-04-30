@@ -3,4 +3,5 @@ export interface BankInterface {
 	deposit(account, amount: number): void;
 	withdraw(account, amount: number): void;
 	transfer(from, to, amount: number): void;
+	isValidAccount(account): any;
 }

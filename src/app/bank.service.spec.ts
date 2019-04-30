@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { BankService } from './bank.service';
-
+import { Account } from './account';
 
 describe('BankService', () => {
   let service: BankService;
@@ -13,79 +13,216 @@ describe('BankService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
-  describe('account', () => {
-    it ('should be a balance equal to 0 or higher in account', () => {
-      let balance = service.bankFunctions.getBalance(service.evaAccount);
-      expect(balance).toBeGreaterThanOrEqual(0);
+
+  describe('Account', () => {
+    it ('should return account if balance is equal to 0 or higher', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let account = service.isValidAccount(testAccount);
+      expect(account).toBe(testAccount);
+    });
+
+    it ('should return false if balance is below 0', () => {
+      let testAccount2: Account = {
+        customerName: 'Eva',
+        balance: -10
+      }
+      let account = service.isValidAccount(testAccount2);
+      expect(account).toBe(undefined);
     });
   
-    it('should be a name as owner of account', () => {
-      let text = '';
-      let name = service.evaAccount.customerName;
-      expect(name).not.toBe(text);
-      expect(name).toContain(' ');
+    it('should return account if name is valid', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let account = service.isValidAccount(testAccount);
+      expect(account).toBe(testAccount);
     });
-  
-    it('should be 1 or more accounts', () => {
-      let expectedNumber = 1;
-      let actualNumber = service.countNumberOfAccounts(service.evaAccount, service.evaSavingsAccount)
-      expect(actualNumber).toBeGreaterThanOrEqual(expectedNumber);
+
+    it('should return false if name is invalid', () => {
+      let testAccount2: Account = {
+        customerName: 'Eva',
+        balance: -10
+      }
+      let account = service.isValidAccount(testAccount2);
+      expect(account).toBe(undefined);
     });
   });
+  describe('number of accounts', () => {
+    it('should be 1 or more accounts', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let testAccount2: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let expectedNumber = 1;
+      let actualNumber = service.countNumberOfAccounts(testAccount, testAccount2)
+      expect(actualNumber).toBeGreaterThanOrEqual(expectedNumber);
+    });
 
+    it('should return 0 if either account is invalid', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let testAccount2: Account = {
+        customerName: 'Eva',
+        balance: -10
+      }
+      let actualNumber = service.countNumberOfAccounts(testAccount, testAccount2)
+      expect(actualNumber).toBe(0);
+    });
+  });
+  describe('get balance function',() => {
+    it('should return correct amount from valid account', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let amount = service.getBalance(testAccount);
+      expect(amount).toBe(testAccount.balance);
+    });
 
+    it('should return -1 if account is invalid', () => {
+      let testAccount2: Account = {
+        customerName: 'Eva',
+        balance: -10
+      }
+      let amount = service.getBalance(testAccount2)
+      expect(amount).toBe(-1);
+    });
+  });
+  const money = 100;
+  const invalidMoney = -1;
+  const toHighAmountMoney = 10000;
   describe('deposit function', () => {
-    it('should be a deposit higher then 0', () => {
-      spyOn(service.bankFunctions, "deposit")
-      let money = 100;
-      service.bankFunctions.deposit(service.evaAccount, money)
-      let expectedDeposit = 1;
-      expect(money).toBeGreaterThanOrEqual(expectedDeposit);
+    it('should throw if amount is below or equal to 0', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      const dangerousCall = () => { service.deposit(testAccount, invalidMoney); }
+      expect(dangerousCall).toThrow();
     });
   
-    it('should be a deposit with a number', () => {
-      spyOn(service.bankFunctions, "deposit");
-      let money = 100;
-      service.bankFunctions.deposit(service.evaAccount, money)
-      let typeNumber= 0;
-      let typeDeposition = money;
-      expect(typeof(typeDeposition)).toBe(typeof(typeNumber));
+    it('should not deposit if amount is not of type number', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      const dangerousCall = () => { service.deposit(testAccount, NaN); }
+      expect(dangerousCall).toThrow();
+    });
+
+    it('should deposit if account and amount is correct', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let expectedBalance = testAccount.balance + money;
+      service.deposit(testAccount, money);
+      expect(testAccount.balance).toBe(expectedBalance);
     });
   });
  
   describe('withdraw function', () => {
-    it('should not withdraw more then the number of the balance', () => {
-      spyOn(service.bankFunctions, "withdraw");
-      let money = 100;
-      service.bankFunctions.withdraw(service.evaAccount, money);
-      let balance = service.evaAccount.balance;
-      expect(balance).toBeGreaterThanOrEqual(money);
+    it('should not withdraw if amount is greater then balance on account', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let expectedBalance = testAccount.balance;
+      service.withdraw(testAccount, toHighAmountMoney);
+      expect(testAccount.balance).toBe(expectedBalance);
     });
 
-    it('should be a withdraw with a number', () => {
-      let expectedNumber = 150;
-      let actualNumber = 150;
-      spyOn(service.bankFunctions, "withdraw");
-      service.bankFunctions.withdraw(service.evaAccount, actualNumber);
-      expect(actualNumber).toBe(expectedNumber);
+    it('should not withdraw if amount is NaN', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let expectedBalance = testAccount.balance;
+      service.withdraw(testAccount, NaN);
+      expect(testAccount.balance).toBe(expectedBalance);
+    });
+
+    it('should withdraw if account and amount is valid', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let expectedBalance = testAccount.balance - money;
+      service.withdraw(testAccount, money);
+      expect(testAccount.balance).toBe(expectedBalance);
     });
   });
  
   describe('transfer function', () => {
-    it('should not transfer higher amount then what the balance is', () => {
-      spyOn(service.bankFunctions, "transfer");
-      let money = 100;
-      service.bankFunctions.transfer(service.evaSavingsAccount, service.evaAccount, money);
-      let balance = service.evaSavingsAccount.balance;
-      expect(balance).toBeGreaterThanOrEqual(money);
+    it('should not transfer if amount is below or equal to 0', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let testAccount3: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let balance1 = testAccount3.balance;
+      let balance2 = testAccount.balance;
+      service.transfer(testAccount3, testAccount, invalidMoney);
+      expect(testAccount3.balance).toBe(balance1);
+      expect(testAccount.balance).toBe(balance2);
     });
 
-    it('should not transfer from and to the same account', () => {
-      spyOn(service.bankFunctions, "transfer");
-      let account1 = service.evaSavingsAccount;
-      let account2 = service.evaAccount;
-      service.bankFunctions.transfer(account1,account2 , 100);
-      expect(account1).not.toEqual(account2);
+    it('should not transfer higher amount then what the balance is', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let testAccount3: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let balance1 = testAccount3.balance;
+      let balance2 = testAccount.balance;
+      service.transfer(testAccount3, testAccount, toHighAmountMoney);
+      expect(testAccount3.balance).toBe(balance1);
+      expect(testAccount.balance).toBe(balance2);
+    });
+    
+    it('should transfer if accounts and amount is correct', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let testAccount3: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let account1 = testAccount;
+      let balance1 = testAccount.balance - money;
+      let account2 = testAccount3;
+      let balance2 = testAccount3.balance + money;
+      service.transfer(account1, account2 , money);
+      expect(account1.balance).toBe(balance1);
+      expect(account2.balance).toBe(balance2)
+    });
+
+    it('should not transfer money if the accounts are the same account', () => {
+      let testAccount: Account = {
+        customerName: 'Eva Fireborn',
+        balance: 1000
+      }
+      let account1 = testAccount;
+      let balance1 = testAccount.balance;
+      service.transfer(account1, account1 , money);
+      expect(account1.balance).toBe(balance1);
     });
   });
 

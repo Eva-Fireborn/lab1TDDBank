@@ -2,7 +2,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
 import { BankComponent } from './bank.component';
-import { debugOutputAstAsTypeScript } from '@angular/compiler';
+import { BankService } from '../bank.service';
+
 
 describe('BankComponent', () => {
   let component: BankComponent;
@@ -14,7 +15,10 @@ describe('BankComponent', () => {
       imports: [
         FormsModule
       ],
-      declarations: [ BankComponent ]
+      declarations: [ BankComponent ],
+			providers: [
+				BankService
+			]
     })
     .compileComponents();
   }));
@@ -24,6 +28,7 @@ describe('BankComponent', () => {
     component = fixture.componentInstance;
     domElement = fixture.nativeElement;
     fixture.detectChanges();
+    
   });
 
   it('should create a component called Bank', () => {
@@ -51,36 +56,71 @@ describe('BankComponent', () => {
 
   describe('account', () => {
     it('should be right value on account', () => {
-      //spyOn(component, "getBalanceFromService");
-      let expectedValue = component.getBalanceFromService();
-      let actualValue = component.myAccount.balance;
-      expect(expectedValue).toBe(actualValue);
+      let balance = 500;
+      let myAccount = {
+        customerName: 'Eva Fireborn',
+        balance: balance
+      }
+      let mockDataService = jasmine.createSpyObj(['getBalance']);
+      mockDataService.getBalance.and.returnValue(balance);
+      let component = new BankComponent(mockDataService);
+      component.getBalanceFromService(myAccount);
+      expect(mockDataService.getBalance).toHaveBeenCalled();
+      expect(component.myAccount.balance).toBe(balance);
     });
-    
-    /*it('should use bankservicefunctions for deposit, withdraw and fetch balance', () => {
-      //TODO
-    });*/
+
+    it('should use getBalance to get balance from service', () => {
+      let balance = 500;
+      let myAccount = {
+        customerName: 'Eva Fireborn',
+        balance: balance
+      }
+      let mockDataService = jasmine.createSpyObj(['getBalance']);
+      mockDataService.getBalance.and.returnValue(balance);
+      let component = new BankComponent(mockDataService);
+      component.getBalanceFromService(myAccount);
+      expect(mockDataService.getBalance).toHaveBeenCalled();
+    });
+
+    it('should use depositInService to deposit', () => {
+      let mockDataService = jasmine.createSpyObj(['deposit']);
+      mockDataService.deposit;
+      let component = new BankComponent(mockDataService);
+      component.inputValue = '300';
+      component.depositInService();
+      expect(mockDataService.deposit).toHaveBeenCalled();
+    });
+
+    it('should use withdrawInService to deposit', () => {
+      let mockDataService = jasmine.createSpyObj(['withdraw']);
+      mockDataService.deposit;
+      let component = new BankComponent(mockDataService);
+      component.withdrawInService();
+      expect(mockDataService.withdraw).toHaveBeenCalled();
+    });
   });
 
-  /*describe('deposit function', () => {
+  describe('deposit function', () => {
     it('should be a function to deposit amount from input field to account', () => {
-      //TODO
+      expect(component.depositInService).toBeTruthy();
     });
   
     it('should be a button who triggers deposit function', () => {
-      //TODO
+      let depositButton = domElement.querySelector('.depositButton');
+      expect(depositButton).toBeTruthy();
     });
   });
 
   describe('withdraw function', () => {
     it('should be a function to withdraw amount from input field from account', () => {
-      //TODO
+      expect(component.withdrawInService).toBeTruthy();
     });
   
     it('should be a button who triggers withdraw function', () => {
-      //TODO
+      let wihtdrawButton = domElement.querySelector('.withdrawButton');
+      expect(wihtdrawButton).toBeTruthy();
     });
-  });*/
-
+  });
+  
 
 });
