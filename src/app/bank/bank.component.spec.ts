@@ -36,6 +36,11 @@ describe('BankComponent', () => {
   });
 
   describe('component DOM', () => {
+
+    it('should have a account', () => {
+      expect(component.myAccount).toBeTruthy();
+    });
+
     it('should show balance in a element that has the class accountbalance', () => {
       let expectedValue = component.myAccount.balance;
       let actualValue = domElement.querySelector('.balance');
@@ -54,7 +59,7 @@ describe('BankComponent', () => {
     });
   });
 
-  describe('account', () => {
+  describe('account and functions with service', () => {
     it('should be right value on account', () => {
       let balance = 500;
       let myAccount = {

@@ -24,7 +24,7 @@ describe('BankService', () => {
       expect(account).toBe(testAccount);
     });
 
-    it ('should return false if balance is below 0', () => {
+    it ('should return undefined if balance is below 0', () => {
       let testAccount2: Account = {
         customerName: 'Eva',
         balance: -10
@@ -42,7 +42,7 @@ describe('BankService', () => {
       expect(account).toBe(testAccount);
     });
 
-    it('should return false if name is invalid', () => {
+    it('should return undefined if name is invalid', () => {
       let testAccount2: Account = {
         customerName: 'Eva',
         balance: -10
@@ -89,20 +89,20 @@ describe('BankService', () => {
       expect(amount).toBe(testAccount.balance);
     });
 
-    it('should return -1 if account is invalid', () => {
+    it('should throw error if account is invalid', () => {
       let testAccount2: Account = {
         customerName: 'Eva',
         balance: -10
       }
-      let amount = service.getBalance(testAccount2)
-      expect(amount).toBe(-1);
+      const dangerousCall = () => { service.getBalance(testAccount2); }
+      expect(dangerousCall).toThrow();
     });
   });
   const money = 100;
   const invalidMoney = -1;
   const toHighAmountMoney = 10000;
   describe('deposit function', () => {
-    it('should throw if amount is below or equal to 0', () => {
+    it('should throw error if amount is below or equal to 0', () => {
       let testAccount: Account = {
         customerName: 'Eva Fireborn',
         balance: 1000
@@ -111,7 +111,7 @@ describe('BankService', () => {
       expect(dangerousCall).toThrow();
     });
   
-    it('should not deposit if amount is not of type number', () => {
+    it('should throw error if amount is not of type number', () => {
       let testAccount: Account = {
         customerName: 'Eva Fireborn',
         balance: 1000
@@ -151,6 +151,16 @@ describe('BankService', () => {
       service.withdraw(testAccount, NaN);
       expect(testAccount.balance).toBe(expectedBalance);
     });
+
+    it('should not withdraw if account is undefined', () => {
+      let falsyTestAccount: Account = {
+        customerName: 'Eva',
+        balance: 1000
+      }
+      let expectedBalance = falsyTestAccount.balance;
+      service.withdraw(falsyTestAccount, 200);
+      expect(falsyTestAccount.balance).toBe(expectedBalance);
+    })
 
     it('should withdraw if account and amount is valid', () => {
       let testAccount: Account = {

@@ -17,7 +17,7 @@ export class BankService {
     getBalance (account: Account): number {
       account = this.isValidAccount(account);
       if(account === undefined){
-        return -1
+        throw new Error('undefined account')
       } else {
         return account.balance;
       }
